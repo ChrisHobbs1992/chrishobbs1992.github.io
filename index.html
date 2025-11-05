@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Date Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    label, input { display: block; margin: 10px 0; }
+    button { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Date Calculator</h1>
+  <label>Years: <input type="number" id="years" value="0"></label>
+  <label>Weeks: <input type="number" id="weeks" value="0"></label>
+  <label>Days: <input type="number" id="days" value="0"></label>
+  <label>As-at Date: <input type="date" id="asAtDate"></label>
+  <button onclick="calculateDate()">Calculate</button>
+  <h2>Result:</h2>
+  <p id="result"></p>
+
+  <script>
+    function calculateDate() {
+      const years = parseInt(document.getElementById('years').value) || 0;
+      const weeks = parseInt(document.getElementById('weeks').value) || 0;
+      const days = parseInt(document.getElementById('days').value) || 0;
+      const asAtInput = document.getElementById('asAtDate').value;
+      const asAtDate = asAtInput ? new Date(asAtInput) : new Date();
+
+      const totalDays = years * 365 + weeks * 7 + days;
+      const resultDate = new Date(asAtDate);
+      resultDate.setDate(resultDate.getDate() + totalDays);
+
+      document.getElementById('result').textContent = resultDate.toDateString();
+    }
+  </script>
+</body>
+</html>
