@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Child SQL Generator</title>
-  <script src="https://cdn.jsdelivr.net/npm/faker@5.5.3/dist/faker.min.js"></script>
+  <script type="module">
+    import { faker } from 'https://cdn.skypack.dev/@faker-js/faker';
+    window.faker = faker;
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chrono-node@2.3.1/dist/chrono.min.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f0f0f0; }
@@ -13,40 +16,40 @@
 </head>
 <body>
   <h1>Child SQL Generator</h1>
-  <p>Enter a relative date (e.g., <code>312 weeks ago</code>)</p>
   <input type="text" id="dobInput" placeholder="e.g. 312 weeks ago" />
-  <button onclick="generateSQL()">Generate SQL</button>
+  <button id="generateBtn">Generate SQL</button>
   <pre id="output"></pre>
 
-  <script>
-    function formatOracleDate(date) {
-      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = months[date.getMonth()];
-      const year = String(date.getFullYear()).slice(-2);
-      return `${day}-${month}-${year}`;
-    }
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+      const formatOracleDate = (date) => {
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = months[date.getMonth()];
+        const year = String(date.getFullYear()).slice(-2);
+        return `${day}-${month}-${year}`;
+      };
 
-    function generateSQL() {
-      const input = document.getElementById("dobInput").value;
-      const parsedDate = chrono.parseDate(input);
-      const output = document.getElementById("output");
+      document.getElementById("generateBtn").addEventListener("click", () => {
+        const input = document.getElementById("dobInput").value;
+        const parsedDate = chrono.parseDate(input);
+        const output = document.getElementById("output");
 
-      if (!parsedDate) {
-        output.textContent = `⚠️ Invalid date expression: "${input}"`;
-        return;
-      }
+        if (!parsedDate) {
+          output.textContent = `⚠️ Invalid date expression: "${input}"`;
+          return;
+        }
 
-      const dobStr = formatOracleDate(parsedDate);
-      const surname = faker.name.lastName();
-      const forename = faker.name.firstName();
-      const address1 = faker.address.streetAddress();
-      const address2 = faker.address.secondaryAddress();
-      const address4 = faker.address.city();
-      const postcode = faker.address.zipCode().toUpperCase();
-      const sex = faker.random.arrayElement(['1', '2']);
+        const dobStr = formatOracleDate(parsedDate);
+        const surname = faker.name.lastName();
+        const forename = faker.name.firstName();
+        const address1 = faker.address.streetAddress();
+        const address2 = faker.address.secondaryAddress();
+        const address4 = faker.address.city();
+        const postcode = faker.address.zipCode().toUpperCase();
+        const sex = faker.helpers.arrayElement(['1', '2']);
 
-      const sql = `
+        const sql = `
 INSERT INTO CHILD_GENERAL (
   CLIENT_ID, SECTOR, CURRENT_STATUS, INITIAL_STATUS, CURRENT_STATUS_DATE,
   INITIAL_STATUS_DATE, DATE_OF_BIRTH, SEX, SURNAME, FORENAME,
@@ -66,8 +69,9 @@ INSERT INTO CHILD_GENERAL (
   'Y', SYSDATE, 6, 'RKUAJ', 'BN'
 );`;
 
-      output.textContent = sql.trim();
-    }
+        output.textContent = sql.trim();
+      });
+    });
   </script>
 </body>
 </html>
