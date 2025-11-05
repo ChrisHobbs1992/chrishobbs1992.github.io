@@ -42,15 +42,12 @@
   <p>Enter a relative date (e.g. <code>312 weeks ago</code>)</p>
   <input type="text" id="dobInput" placeholder="e.g. 312 weeks ago" />
   <button id="generateBtn">Generate SQL</button>
-  <button class="copy-btn" onclick="copySQL()">Copy to Clipboard</button>
+  <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
   <pre id="output"></pre>
 
   <script type="module">
     import { faker } from 'https://cdn.skypack.dev/@faker-js/faker';
     import * as chrono from 'https://cdn.skypack.dev/chrono-node';
-
-    window.faker = faker;
-    window.chrono = chrono;
 
     const formatOracleDate = (date) => {
       const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -60,7 +57,7 @@
       return `${day}-${month}-${year}`;
     };
 
-    document.getElementById("generateBtn").addEventListener("click", () => {
+    const generateSQL = () => {
       const input = document.getElementById("dobInput").value;
       const parsedDate = chrono.parseDate(input);
       const output = document.getElementById("output");
@@ -71,12 +68,12 @@
       }
 
       const dobStr = formatOracleDate(parsedDate);
-      const surname = faker.name.lastName();
-      const forename = faker.name.firstName();
-      const address1 = faker.address.streetAddress();
-      const address2 = faker.address.secondaryAddress();
-      const address4 = faker.address.city();
-      const postcode = faker.address.zipCode().toUpperCase();
+      const surname = faker.person.lastName();
+      const forename = faker.person.firstName();
+      const address1 = faker.location.streetAddress();
+      const address2 = faker.location.secondaryAddress();
+      const address4 = faker.location.city();
+      const postcode = faker.location.zipCode().toUpperCase();
       const sex = faker.helpers.arrayElement(['1', '2']);
 
       const sql = `
@@ -100,14 +97,17 @@ INSERT INTO CHILD_GENERAL (
 );`;
 
       output.textContent = sql.trim();
-    });
+    };
 
-    window.copySQL = () => {
+    const copySQL = () => {
       const output = document.getElementById("output");
       navigator.clipboard.writeText(output.textContent).then(() => {
         alert("SQL copied to clipboard!");
       });
     };
+
+    document.getElementById("generateBtn").addEventListener("click", generateSQL);
+    document.getElementById("copyBtn").addEventListener("click", copySQL);
   </script>
 </body>
 </html>
