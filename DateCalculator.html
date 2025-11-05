@@ -7,11 +7,14 @@
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
     label, input { display: block; margin: 10px 0; }
     button { margin-top: 20px; }
+    h2 { margin-top: 30px; }
   </style>
 </head>
 <body>
   <h1>Date Calculator</h1>
+
   <label>Years: <input type="number" id="years" value="0"></label>
+  <label>Months: <input type="number" id="months" value="0"></label>
   <label>Weeks: <input type="number" id="weeks" value="0"></label>
   <label>Days: <input type="number" id="days" value="0"></label>
   <label>As-at Date: <input type="date" id="asAtDate"></label>
@@ -19,22 +22,43 @@
   <h2>Result:</h2>
   <p id="result"></p>
 
-  <script>
+  <h2>Natural Language Date Parser</h2>
+  <label>Expression (e.g. "3 days ago"): <input type="text" id="chronoInput" placeholder="e.g. 3 days ago"></label>
+  <button onclick="parseChrono()">Parse Date</button>
+  <p id="chronoResult"></p>
+
+  <script type="module">
+    import * as chrono from 'https://cdn.skypack.dev/chrono-node';
+
     function calculateDate() {
       const years = parseInt(document.getElementById('years').value) || 0;
+      const months = parseInt(document.getElementById('months').value) || 0;
       const weeks = parseInt(document.getElementById('weeks').value) || 0;
       const days = parseInt(document.getElementById('days').value) || 0;
       const asAtInput = document.getElementById('asAtDate').value;
       const asAtDate = asAtInput ? new Date(asAtInput) : new Date();
 
-      const totalDays = years * 365 + weeks * 7 + days;
       const resultDate = new Date(asAtDate);
-      resultDate.setDate(resultDate.getDate() + totalDays);
+      resultDate.setFullYear(resultDate.getFullYear() + years);
+      resultDate.setMonth(resultDate.getMonth() + months);
+      resultDate.setDate(resultDate.getDate() + (weeks * 7) + days);
 
       document.getElementById('result').textContent = resultDate.toDateString();
     }
+
+    function parseChrono() {
+      const input = document.getElementById('chronoInput').value;
+      const parsedDate = chrono.parseDate(input);
+      const output = document.getElementById('chronoResult');
+
+      if (!parsedDate) {
+        output.textContent = `⚠️ Unable to parse: "${input}"`;
+      } else {
+        output.textContent = `📅 Parsed Date: ${parsedDate.toDateString()}`;
+      }
+    }
   </script>
 
-  <a href = "index.html">Back to list...</a>
+  <a href="index.html">Back to list...</a>
 </body>
 </html>
