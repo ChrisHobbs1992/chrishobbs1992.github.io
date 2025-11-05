@@ -73,7 +73,11 @@
       const address1 = faker.location.streetAddress();
       const address2 = faker.location.secondaryAddress();
       const address4 = faker.location.city();
-      const postcode = faker.location.zipCode().toUpperCase();
+      //Postcode workaround
+      const postcode = faker.helpers.fake([
+  '{{helpers.fromRegExp("[A-Z]{1,2}[0-9]{1,2} [0-9][ABDEFGHJLNPQRSTUWXYZ]{2}")}}',
+  '{{helpers.fromRegExp("[A-Z]{1,2}[0-9][A-Z] [0-9][ABDEFGHJLNPQRSTUWXYZ]{2}")}}',
+]);
       const sex = faker.helpers.arrayElement(['1', '2']);
 
       const sql = `
