@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Child SQL Generator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f0f0f0;
+      max-width: 800px;
+      margin: auto;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      width: 100%;
+      font-size: 1rem;
+    }
+    pre {
+      background: #fff;
+      padding: 1rem;
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
+    }
+    h1 {
+      margin-bottom: 0.5rem;
+    }
+    .copy-btn {
+      margin-top: 0.5rem;
+      background: #0078d4;
+      color: white;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <p>The following tool will generate an insert statement for CYPRIS children.</p>
+  <h1>Child SQL Generator</h1>
+  <p>Enter a relative date (e.g. <code>312 weeks ago</code>)</p>
+  <input type="text" id="dobInput" placeholder="e.g. 312 weeks ago" />
+  <input type="text" id="sectorInput" placeholder="e.g. 08" />
+  <button id="generateBtn">Generate SQL</button>
+  <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
+  <pre id="output"></pre>
+
+  <script type="module">
+    import { faker } from 'https://cdn.skypack.dev/@faker-js/faker';
+    import * as chrono from 'https://cdn.skypack.dev/chrono-node';
+
+    const formatOracleDate = (date) => {
+      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = months[date.getMonth()];
+      const year = String(date.getFullYear()).slice(-2);
+      return `${day}-${month}-${year}`;
+    };
+
+    const generateSQL = () => {
+      const input = document.getElementById("dobInput").value;
+      const sectorStr = document.getElementById("sectorInput").value;
+      const parsedDate = chrono.parseDate(input);
+      const output = document.getElementById("output");
+
+      if (!parsedDate) {
+        output.textContent = `⚠️ Invalid date expression: "${input}"`;
+        return;
+      }
+
+      const dobStr = formatOracleDate(parsedDate);
+      const surname = faker.person.lastName();
+      const forename = faker.person.firstName();
+      const address1 = faker.location.streetAddress();
+      const address2 = faker.location.secondaryAddress();
+      const address4 = faker.location.city();
+      //Postcode workaround
+      const postcode = faker.helpers.fake([
+  '{{helpers.fromRegExp("[A-Z]{1,2}[0-9]{1,2} [0-9][ABDEFGHJLNPQRSTUWXYZ]{2}")}}',
+  '{{helpers.fromRegExp("[A-Z]{1,2}[0-9][A-Z] [0-9][ABDEFGHJLNPQRSTUWXYZ]{2}")}}',
+]);
+      const sex = faker.helpers.arrayElement(['1', '2']);
+
+      const sql = `
+INSERT INTO CHILD_GENERAL (
+  CLIENT_ID, SECTOR, CURRENT_STATUS, INITIAL_STATUS, CURRENT_STATUS_DATE,
+  INITIAL_STATUS_DATE, DATE_OF_BIRTH, SEX, SURNAME, FORENAME,
+  ADDRESS1, ADDRESS2, ADDRESS4, POSTCODE, ETHNIC_ORIGIN,
+  BTH_REG_DISTRICT, BTH_NUMBER_OF_BIRTHS, BTH_LSD_MARKER, BTH_BIRTH_ORDER,
+  BTH_LOCATION, CREATION_DATE, MODIFICATION_DATE, IMMUNISATION_STATUS,
+  EXAMINATION_STATUS, FK_CHILD_MERGE_STATUS_ID, CURRENT_MMR_FAILS_NO_REASON,
+  CURRENT_OTHER_FAILS_NO_REASON, CURRENT_FAILS_WITH_REASON, CURRENT_STATUS_CHANGED_DATE,
+  MOVEMENT_IN_LABELS_REQ, REGISTRARS_REPORT_DATE, FK_BTH_LOCATION_CHILD_LOC_TYPE,
+  FK_TRANSFER_FROM_CODE, REGISTRATION_ORIGIN
+) VALUES (
+  public_demo_seq.nextval, '${sectorStr}', 0, 0, SYSDATE,
+  SYSDATE, TO_DATE('${dobStr}', 'DD-MON-RR'), '${sex}', '${surname}', '${forename}',
+  '${address1}', '${address2}', '${address4}', '${postcode}', 'A',
+  'AA', 1, 1, 1, '7A1A1', SYSDATE, SYSDATE, 3,
+  1, 0, 0, 0, 0, SYSDATE,
+  'Y', SYSDATE, 6, 'RKUAJ', 'BN'
+);`;
+
+      output.textContent = sql.trim();
+    };
+
+    const copySQL = () => {
+      const output = document.getElementById("output");
+      navigator.clipboard.writeText(output.textContent).then(() => {
+        alert("SQL copied to clipboard!");
+      });
+    };
+
+    document.getElementById("generateBtn").addEventListener("click", generateSQL);
+    document.getElementById("copyBtn").addEventListener("click", copySQL);
+  </script>
+
+  <a href="index.html">Back to List...</a>
+</body>
+</html>
