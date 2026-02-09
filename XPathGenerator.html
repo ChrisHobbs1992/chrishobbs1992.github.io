@@ -17,7 +17,23 @@
 
 <h2>XPath Locator Generator</h2>
 
-<!-- Element type dropdown -->
+<!-- NEW: HTML tag dropdown -->
+<label>HTML Element:</label>
+<select id="htmlElement">
+    <option value="*">Any (*)</option>
+    <option value="div">div</option>
+    <option value="span">span</option>
+    <option value="input">input</option>
+    <option value="button">button</option>
+    <option value="a">a</option>
+    <option value="tr">tr</option>
+    <option value="td">td</option>
+    <option value="li">li</option>
+    <option value="ul">ul</option>
+    <option value="table">table</option>
+</select>
+
+<!-- Element attribute dropdown -->
 <label>Element Attribute:</label>
 <select id="elementType">
     <option value="id">id</option>
@@ -39,36 +55,34 @@
 <label>Value:</label>
 <input type="text" id="valueInput" placeholder="Enter value...">
 
-<!-- Generate button -->
 <br>
 <button onclick="generateXPath()">Generate</button>
 
-<!-- Output -->
 <div id="output"></div>
 
 <script>
 function generateXPath() {
+    const htmlElement = document.getElementById("htmlElement").value;
     const elementType = document.getElementById("elementType").value;
     const value = document.getElementById("valueInput").value.trim();
     const matchType = document.querySelector('input[name="matchType"]:checked').value;
-    
+
     if (!value) {
         document.getElementById("output").innerText = "Please enter a value.";
         return;
     }
 
     let xpath = "";
+    const tag = htmlElement === "*" ? "*" : htmlElement;
 
     if (elementType === "text") {
-        // Special case for text()
         xpath = matchType === "equals"
-            ? `//*/text()[.='${value}']/parent::*`
-            : `//*/text()[contains(., '${value}')]/parent::*`;
+            ? `//${tag}[text()='${value}']`
+            : `//${tag}[contains(text(), '${value}')]`;
     } else {
-        // Normal attributes
         xpath = matchType === "equals"
-            ? `//*[@${elementType}='${value}']`
-            : `//*[contains(@${elementType}, '${value}')]`;
+            ? `//${tag}[@${elementType}='${value}']`
+            : `//${tag}[contains(@${elementType}, '${value}')]`;
     }
 
     document.getElementById("output").innerText = xpath;
