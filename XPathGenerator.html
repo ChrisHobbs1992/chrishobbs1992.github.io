@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XPath Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        label { display: block; margin-top: 15px; }
+        select, input[type="text"] { padding: 6px; margin-top: 5px; width: 250px; }
+        .radio-group { margin-top: 10px; }
+        button { margin-top: 20px; padding: 10px 20px; }
+        #output { margin-top: 20px; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+
+<h2>XPath Locator Generator</h2>
+
+<!-- Element type dropdown -->
+<label>Element Attribute:</label>
+<select id="elementType">
+    <option value="id">id</option>
+    <option value="class">class</option>
+    <option value="name">name</option>
+    <option value="text">text()</option>
+    <option value="placeholder">placeholder</option>
+    <option value="type">type</option>
+</select>
+
+<!-- Equals / Contains -->
+<label>Match Type:</label>
+<div class="radio-group">
+    <input type="radio" name="matchType" value="equals" checked> Equals<br>
+    <input type="radio" name="matchType" value="contains"> Contains
+</div>
+
+<!-- Value text box -->
+<label>Value:</label>
+<input type="text" id="valueInput" placeholder="Enter value...">
+
+<!-- Generate button -->
+<br>
+<button onclick="generateXPath()">Generate</button>
+
+<!-- Output -->
+<div id="output"></div>
+
+<script>
+function generateXPath() {
+    const elementType = document.getElementById("elementType").value;
+    const value = document.getElementById("valueInput").value.trim();
+    const matchType = document.querySelector('input[name="matchType"]:checked').value;
+    
+    if (!value) {
+        document.getElementById("output").innerText = "Please enter a value.";
+        return;
+    }
+
+    let xpath = "";
+
+    if (elementType === "text") {
+        // Special case for text()
+        xpath = matchType === "equals"
+            ? `//*/text()[.='${value}']/parent::*`
+            : `//*/text()[contains(., '${value}')]/parent::*`;
+    } else {
+        // Normal attributes
+        xpath = matchType === "equals"
+            ? `//*[@${elementType}='${value}']`
+            : `//*[contains(@${elementType}, '${value}')]`;
+    }
+
+    document.getElementById("output").innerText = xpath;
+}
+</script>
+
+</body>
+</html>
