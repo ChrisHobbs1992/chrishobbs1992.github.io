@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHS Number Generator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #005eb8;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 8px;
+            width: 100px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #f7f7f7;
+            min-height: 100px;
+            white-space: pre-line;
+            font-family: Consolas, monospace;
+        }
+
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>NHS Number Generator</h1>
+
+    <div class="controls">
+        <label for="count">How many numbers?</label>
+        <input type="number" id="count" value="1" min="1" max="1000">
+
+        <button onclick="generateNumbers()">
+            Generate NHS Number(s)
+        </button>
+
+        <button onclick="copyResults()">
+            Copy Results
+        </button>
+    </div>
+
+    <div id="results"></div>
+    <div id="message" class="success"></div>
+
+    <script>
+        function generateNhsNumber() {
+            while (true) {
+
+                const nhsNumbers = new Array(10);
+
+                nhsNumbers[0] = 9;
+                nhsNumbers[1] = 1;
+
+                for (let i = 2; i < 9; i++) {
+                    nhsNumbers[i] = Math.floor(Math.random() * 10);
+                }
+
+                let total = 0;
+
+                for (let i = 0; i < 9; i++) {
+                    total += nhsNumbers[i] * (10 - i);
+                }
+
+                let checkDigit = 11 - (total % 11);
+
+                if (checkDigit === 11) {
+                    checkDigit = 0;
+                }
+
+                if (checkDigit === 10) {
+                    continue;
+                }
+
+                nhsNumbers[9] = checkDigit;
+
+                return nhsNumbers.join('');
+            }
+        }
+
+        function generateNumbers() {
+            const count = parseInt(document.getElementById('count').value);
+            const results = [];
+
+            for (let i = 0; i < count; i++) {
+                results.push(generateNhsNumber());
+            }
+
+            document.getElementById('results').textContent = results.join('\n');
+            document.getElementById('message').textContent = '';
+        }
+
+        async function copyResults() {
+            const text = document.getElementById('results').textContent;
+
+            if (!text) {
+                return;
+            }
+
+            await navigator.clipboard.writeText(text);
+
+            document.getElementById('message').textContent =
+                'NHS number(s) copied to clipboard.';
+        }
+    </script>
+
+</body>
+</html>
